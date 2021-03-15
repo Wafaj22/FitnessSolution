@@ -1,0 +1,163 @@
+﻿@using Microsoft.AspNetCore.Identity
+@using FitnessSolution.Areas.Identity.Data
+
+@inject SignInManager<FitnessSolutionUser> SignInManager
+@inject UserManager<FitnessSolutionUser> UserManager
+@using System.Security.Claims
+
+    <!DOCTYPE html>
+    <html lang="en">
+    <head>
+        <meta charset="utf-8" />
+        <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+        <title>@ViewData["Title"] - Fitness</title>
+        <link rel="stylesheet" href="~/css/util.css" />
+        <link rel="stylesheet" href="~/css/main.css" />
+        <link rel="stylesheet" href="~/lib/animate/animate.css" />
+        <link rel="stylesheet" href="~/lib/bootstrap/css/bootstrap.min.css" />
+        <link rel="stylesheet" href="~/css/plugins.css" />
+        <link rel="stylesheet" href="~/css/style-dark.css" />
+        <link rel="stylesheet" type="text/css" href="~/fonts/font-awesome-4.7.0/css/font-awesome.min.css">
+    </head>
+    <body>
+
+        <!-- Start Preloader-->
+        <div id="p-preloader">
+            <div class="p-preloader-wave"></div>
+        </div>
+        <!-- End Preloader -->
+        <!-- Start Header -->
+        <header class="header-wrap">
+            <div class="navbar-collapse">
+                <div class="navbar-container">
+                    <div class="container position-rl">
+                        <div class="nav-bar-area">
+                            <div class="menu-toggle">
+                                <div class="menu-bar"><span></span></div>
+                                <div class="menu-text">MENU</div>
+                            </div>
+                        </div>
+                        <!-- .nav-bar-area -->
+                        <div class="pull-left">
+                            <a asp-area="" asp-controller="Home" asp-action="Index" class="logo">
+                                Fitness
+                            </a>
+                            <!-- .logo -->
+                        </div>
+                        <!-- .pull-left -->
+                    </div>
+                    <!-- .container -->
+                </div>
+                <!-- .navbar-container -->
+            </div>
+            <!-- .navbar-collapse -->
+            <div class="nav-area">
+                <div class="inner-nav-area">
+                    <nav class="nav-list">
+
+                        <ul>
+                            <!-- asp-area="" asp-controller="Home" asp-action="Index"
+                            <partial name="_LoginPartial"   -->
+                            <li class="active-menu"><a asp-area="" asp-controller="Home" asp-action="Index">Home</a></li>
+                            @if (SignInManager.IsSignedIn(User))
+                            {
+                                <li>
+                                    <a id="manage" asp-area="Identity" asp-page="/Account/Manage/Index" title="Manage">Profile</a>
+                                </li>
+                                <li>
+                                    <form id="logoutForm" asp-area="Identity" asp-page="/Account/Logout" asp-route-returnUrl="@Url.Action("Index", "Home", new { area = "" })">
+                                        <button id="logout" type="submit" class="nav-logout">Logout</button>
+                                    </form>
+                                </li>
+                                <li>
+                                    <a asp-area="" asp-controller="Home" asp-action="Index">Plans</a>
+                                    <span class="mm-togle"><i class="fa fa-caret-down" aria-hidden="true"></i></span>
+                                    <ul class="sub-menu">
+                                        @if (((ClaimsIdentity)User.Identity).FindFirst("Check").Value == "member")
+                                        {
+                                            <li><a asp-area="" asp-controller="Workouts" asp-action="Index">Training plans</a></li>
+                                            <li><a asp-area="" asp-controller="Diets" asp-action="Index">Nutirtion plans</a></li>
+                                        }
+                                        else if (((ClaimsIdentity)User.Identity).FindFirst("Check").Value == "nutritionist")
+                                        {
+                                            <li><a asp-area="" asp-controller="Diets" asp-action="Index">Nutirtion plans</a></li>
+                                            <li><a asp-area="" asp-controller="Diets" asp-action="Create">Create new meal plan</a></li>
+                                            <li><a asp-area="" asp-controller="Recipes" asp-action="Index">Recipes plans</a></li>
+                                            <li><a asp-area="" asp-controller="Recipes" asp-action="Create">Create new recipe</a></li>
+                                        }
+                                        else if (((ClaimsIdentity)User.Identity).FindFirst("Check").Value == "trainer")
+                                        {
+                                            <li><a asp-area="" asp-controller="Workouts" asp-action="Index">Training plans</a></li>
+                                            <li><a asp-area="" asp-controller="Workouts" asp-action="Create">Create new workout plan</a></li>
+                                            <li><a asp-area="" asp-controller="Exercices" asp-action="Index">Exercices plans</a></li>
+                                            <li><a asp-area="" asp-controller="Exercices" asp-action="Create">Create new exercice plan</a></li>
+                                        }
+                                    </ul>
+                                    <!-- .sub-menu -->
+                                </li>
+                             }
+                             else
+                             {
+                                <li><a id="register" asp-area="Identity" asp-page="/Account/Register">Register</a></li>
+                                <li><a id="login" asp-area="Identity" asp-page="/Account/Login">Login</a></li>
+                             }
+                        </ul>
+                    </nav>
+                    <!-- .nav-list -->
+                </div>
+                <!-- .inner-nav-area -->
+                <div class="container nav-other">
+                    <p class="menu-copyright pull-left">&copy; 2021 Complete Fitness Solution.</p>
+                    <div class="menu-socials pull-right">
+                        <ul>
+                            <li><a href="#"><i class="fa fa-facebook" aria-hidden="true"></i></a></li>
+                            <li><a href="#"><i class="fa fa-twitter" aria-hidden="true"></i></a></li>
+                            <li><a href="#"><i class="fa fa-instagram" aria-hidden="true"></i></a></li>
+                            <li><a href="#"><i class="fa fa-pinterest" aria-hidden="true"></i></a></li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+            <!-- .nav-area -->
+        </header>
+        <!-- End Header -->
+        <div>
+            <main role="main">
+                @RenderBody()
+            </main>
+        </div>
+
+        <!-- Start Footer -->
+        <footer class="footer-area text-center">
+            <div class="container">
+                <div class="footer-social-area wow animated slideInUp">
+                    <ul>
+                        <li><a href="#">Facebook</a></li>
+                        <li><a href="#">Twitter</a></li>
+                        <li><a href="#">Instagram</a></li>
+                        <li><a href="#">Pinterest</a></li>
+                    </ul>
+                </div>
+                <!-- .footer-social-area -->
+                <div class="copyright wow animated slideInUp">
+                    <p>&copy; 2021 Complete Fitness Solution.</p>
+                </div>
+                <!-- .copyright -->
+                <a href="#" id="scroll-to-up"><i class="fa fa-angle-double-up" aria-hidden="true"></i></a>
+            </div>
+            <!-- .container -->
+        </footer>
+        <!-- End Footer -->
+        <script src="~/lib/jquery/jquery-3.2.1.min.js"></script>
+        <script src="~/js/plugins.js"></script>
+        <script src="~/js/main.js"></script>
+        <script src="~/lib/tilt/tilt.jquery.min.js"></script>
+        <script>
+            $('.js-tilt').tilt({
+                scale: 1.2
+            })
+        </script>
+        <!--<script src="~/js/site.js" asp-append-version="true"></script> -->
+        @RenderSection("Scripts", required: false)
+    </body>
+</html>

@@ -1,0 +1,19 @@
+{
+  "dependencies": {
+    "mssql2": {
+      "type": "mssql",
+      "connectionId": "FitnessSolutionPlansContext"
+    },
+    "mssql1": {
+      "type": "mssql",
+      "connectionId": "FitnessSolutionContextConnection"
+    },
+    "secrets1": {
+      "type": "secrets"
+    },
+    "storage1": {
+      "type": "storage",
+      "connectionId": "blobstorageconnectionstring"
+    }
+  }
+}

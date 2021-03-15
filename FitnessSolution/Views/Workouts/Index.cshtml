@@ -1,0 +1,77 @@
+﻿@model IEnumerable<FitnessSolution.Models.Workout>
+@using System.Security.Claims
+
+@{
+    ViewData["Title"] = "Index";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+}
+
+
+<section class="hero-area hero-area-all hero-workout">
+    <div class="container">
+        <div class="hero-title text-center">
+            <h1>Professional </h1>
+            <h1><span style="color:#f36100">Training</span> plans</h1>
+            <div class="breadcrumb">
+                <ul>
+                    <li><a href="index.html">Home</a></li>
+                    <li>Workouts</li>
+                </ul>
+            </div>
+        </div>
+        <!-- .hero-title -->
+    </div>
+    <!-- .container -->
+</section>
+<!-- End Hero Area -->
+<!-- Start Portfolio Area -->
+<section class="portfolio-area">
+    <div class="col-md-9"></div>
+    <div class="col-md-3">
+        <div class="text-center p-t-35">
+            @if (((ClaimsIdentity)User.Identity).FindFirst("Check").Value == "trainer")
+            {
+                <a asp-action="Create" class="txt2" style="font-size: 17px;">
+                    Create New
+                    <i class="fa fa-long-arrow-right m-l-5" aria-hidden="true"></i>
+                </a>
+            }
+        </div>
+    </div>
+    <div class="container p-l-r-0 portfolio-even">
+        <div class="portfolio-filter text-center">
+            <ul>
+                <li class="active"><a href="#" data-filter="*">ALL</a></li>
+                <li><a href="#" data-filter=".item-1">Beginner</a></li>
+                <li><a href="#" data-filter=".item-2">Intermediate</a></li>
+                <li><a href="#" data-filter=".item-3">Advanced</a></li>
+            </ul>
+        </div>
+        <!-- .portfolio-filter-area -->
+        <div class="portfolio" id="portfolio_box">
+            @foreach (var item in Model)
+            {
+                <div class="portfolio-item @((item.Type == "Beginner") ? "item-1" : "") @((item.Type == "Intermediate") ? "item-2" : "") @((item.Type == "Advanced") ? "item-3" : "")">
+                    <div class="inner-portfolio">
+                        <img src="@("~/uploads/"+item.WorkoutImageName)" asp-append-version="true" alt="">
+                        <div class="portfolio-s-head">
+                            <h2>@Html.DisplayFor(modelItem => item.WorkoutTitle)</h2>
+                            @if (((ClaimsIdentity)User.Identity).FindFirst("Check").Value == "trainer")
+                            {
+                                <a asp-action="Edit" asp-route-id="@item.WorkoutId">Edit</a>
+                                <a asp-action="Delete" asp-route-id="@item.WorkoutId"> | Delete</a>
+                            }
+                        </div>
+                        <div class="portfolio-hover text-center">
+                            <h2><a asp-action="Details" asp-route-id="@item.WorkoutId">@Html.DisplayFor(modelItem => item.WorkoutTitle)</a></h2>
+                        </div>
+                        <!-- .portfolio-hover -->
+                    </div>
+                </div>
+                <!-- .portfolio-item -->
+            }
+        </div>
+        <!-- .portfolio -->
+    </div>
+    <!-- .container -->
+</section>

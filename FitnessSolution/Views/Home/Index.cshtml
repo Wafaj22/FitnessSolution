@@ -1,0 +1,163 @@
+﻿@using Microsoft.AspNetCore.Identity
+@using FitnessSolution.Areas.Identity.Data
+
+@inject SignInManager<FitnessSolutionUser> SignInManager
+@inject UserManager<FitnessSolutionUser> UserManager
+
+@model dynamic
+
+@{
+    ViewData["Title"] = "Home";
+}
+
+<!-- Start Hero Section -->
+<section class="hero-area" id="parallax-bg">
+    <div class="container">
+        <div class="hero-title" style="text-align:left !important">
+            <h1>Complete <span style="color:#f36100">Fitness</span></h1>
+            <h1>Virtual Solution</h1>
+            <h4>Health | Workout | Diet</h4>
+        </div>
+        <!-- .hero-title -->
+    </div>
+    <!-- .container -->
+</section>
+<!-- End Hero Section -->
+<!-- Start service-section -->
+<section class="service-section sd-section">
+    <div class="container">
+        <div class="section-header text-center">
+            <h2>Our <span style="color:#f36100">Services</span></h2>
+            <h3>We Are Passionate and Creative</h3>
+        </div>
+        <!-- .section-header -->
+        <div class="row">
+            <div class="col-sm-4 text-center">
+                <div class="single-service">
+                    <div class="service-icon">
+                        <div class="js-tilt" data-tilt>
+                            <img class="icon" src="img/blog/meal.png" alt="">
+                        </div>
+                    </div>
+                    <h3 class="service-head">Healthy nutrition plans</h3>
+                    <div class="service-body">Customized healthy meal plans based on your preferences. Various recipies to suit every taste.</div>
+                </div>
+            </div>
+            <!-- .col -->
+            <div class="col-sm-4 text-center">
+                <div class="single-service">
+                    <div class="service-icon">
+                        <div class="js-tilt" data-tilt>
+                            <img class="icon" src="img/blog/muscles.png" alt="">
+                        </div>
+                    </div>
+                    <h3 class="service-head">Professional training plans</h3>
+                    <div class="service-body">We have a wide choice of classes that are a great complement to any training programme.</div>
+                </div>
+            </div>
+            <!-- .col -->
+            <div class="col-sm-4 text-center">
+                <div class="single-service">
+                    <div class="service-icon">
+                        <div class="js-tilt" data-tilt>
+                            <img class="icon" src="img/blog/heartbeat.png" alt="">
+                        </div>
+                    </div>
+                    <h3 class="service-head">Unique to your needs</h3>
+                    <div class="service-body">Choose training and nutirtion plans that suit your personal body needs and activity.</div>
+                </div>
+            </div>
+            <!-- .col -->
+        </div>
+        <!-- .row -->
+    </div>
+    <!-- .container -->
+</section>
+<!-- End service-section -->
+<!-- Start Portfolio Area -->
+@if (SignInManager.IsSignedIn(User))
+{
+    <section class="portfolio-area">
+        <div class="container p-l-r-0 portfolio-masonry">
+            <div class="portfolio-filter text-center">
+                <ul>
+                    <li class="active"><a href="#" data-filter="*">ALL</a></li>
+                    <li><a href="#" data-filter=".item-1">Training plans</a></li>
+                    <li><a href="#" data-filter=".item-2">Nutirtion plans</a></li>
+                </ul>
+            </div>
+            <!-- .portfolio-filter-area -->
+            <div class="portfolio" id="portfolio_box">
+                @foreach (var item in Model.Workouts)
+                {
+                    <div class="portfolio-item item-1">
+                        <div class="inner-portfolio">
+                            <img src="@("~/uploads/"+item.WorkoutImageName)" asp-append-version="true" alt="">
+                            <div class="portfolio-s-head">
+                                <h2>@item.WorkoutTitle</h2>
+                            </div>
+                            <div class="portfolio-hover text-center">
+                                <h2><a asp-controller="Workouts" asp-action="Details" asp-route-id="@item.WorkoutId">@item.WorkoutTitle</a></h2>
+                            </div>
+                            <!-- .portfolio-hover -->
+                        </div>
+                    </div>
+                    <!-- .portfolio-item -->
+                }
+                @foreach (var item in Model.Diets)
+                {
+                    <div class="portfolio-item item-2">
+                        <div class="inner-portfolio">
+                            <img src="@("~/uploads/"+item.DietImageName)" asp-append-version="true" alt="">
+                            <div class="portfolio-s-head">
+                                <h2>@item.DietTitle</h2>
+                            </div>
+                            <div class="portfolio-hover text-center">
+                                <h2><a asp-controller="Diets" asp-action="Details" asp-route-id="@item.DietId">@item.DietTitle</a></h2>
+                            </div>
+                            <!-- .portfolio-hover -->
+                        </div>
+                    </div>
+                    <!-- .portfolio-item -->
+                }
+            </div>
+            <!-- .portfolio -->
+        </div>
+        <!-- .container -->
+    </section>
+}
+<!-- End Portfolio Area -->
+<!-- Start testimonia-section -->
+<section class="testimonial-section sd-section">
+    <div class="container">
+        <div class="section-header text-center">
+            <h2>Testimonials</h2>
+            <h3>Our Members Just Love Us</h3>
+        </div>
+        <!-- .section-header -->
+        <div id="testimonial">
+            <div>
+                <blockquote>
+                    I never liked working out. I was always too tired and too lazy to work out at home. And eating healthily did not come naturally to me. Fitness helped me ease my way in to working out and eating a balanced diet.
+                    <small>Jhon -D</small>
+                </blockquote>
+            </div>
+            <div>
+                <blockquote>
+                    Thanks to complete virtual fitness solution, I found solutions that are convenient for my pace and before I even knew it I was looking and feeling so much better.
+                    <small>Sally -H</small>
+                </blockquote>
+            </div>
+            <div>
+                <blockquote>
+                    I’ve been working out with a trainer at complete vitrual fitness solution and have truly enjoyed the experience. Even though I’m only a few pounds away from my weight and body fat percentage goals, my body is in the best shape it’s ever been. Being accountable
+                    to my appointments with my trainer is key for me.
+                    <small>Mohd -J</small>
+                </blockquote>
+            </div>
+        </div>
+        <!-- #testimonial -->
+    </div>
+    <!-- .container -->
+</section>
+<!-- End testimonia-section -->

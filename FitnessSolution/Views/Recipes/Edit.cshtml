@@ -1,0 +1,71 @@
+﻿@model FitnessSolution.Models.Recipe
+
+@{
+    ViewData["Title"] = "Edit Recipe";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+}
+
+<div class="wrap-login100" style="width: 1200px; padding: 130px 130px 70px 100px;">
+    <div class="login100-pic">
+        <div class="js-tilt" data-tilt>
+            <a href='https://www.freepik.com/vectors/frame'>
+                <img src="@("~/uploads/"+Model.RecipeImageName)" asp-append-version="true" style="padding-top: 50px;" alt="">
+            </a>
+        </div>
+        <div class="text-center p-t-130">
+            <a asp-action="Index" class="txt2">
+                Back to List
+                <i class="fa fa-long-arrow-right m-l-5" aria-hidden="true"></i>
+            </a>
+        </div>
+    </div>
+    <form class="login100-form" style="width: 500px;" asp-action="Edit">
+        <span class="login100-form-title" style="text-align: left; padding-bottom: 0px;">
+            @ViewData["Title"]
+        </span>
+        <a asp-action="Index" class="txt2" style="padding-bottom: 30px;">
+            Back to List
+            <i class="fa fa-long-arrow-right m-l-5" aria-hidden="true"></i>
+        </a>
+        <div asp-validation-summary="ModelOnly" class="text-danger"></div>
+        <input type="hidden" asp-for="RecipeId" />
+        <input type="hidden" asp-for="RecipeImageName" />
+        <div class="wrap-input100">
+            <label asp-for="RecipeTitle" class="control-label"></label>
+            <input asp-for="RecipeTitle" class="form-control" />
+            <span asp-validation-for="RecipeTitle" class="text-danger"></span>
+        </div>
+        <div class="wrap-input100">
+            <label asp-for="RecipeDescription" class="control-label"></label>
+            <input asp-for="RecipeDescription" class="form-control" />
+            <span asp-validation-for="RecipeDescription" class="text-danger"></span>
+        </div>
+        <div class="wrap-input100">
+            <label asp-for="Type" class="control-label"></label>
+            <input asp-for="Type" class="form-control" />
+            <span asp-validation-for="Type" class="text-danger"></span>
+        </div>
+        <div class="wrap-input100">
+            <label asp-for="DietId" class="control-label"></label>
+            <select asp-for="DietId" class="form-control" asp-items="ViewBag.DietId" style="height: 35px;" disabled></select>
+            <span asp-validation-for="DietId" class="text-danger"></span>
+        </div>
+        <div class="container-login100-form-btn">
+            <div class="wrap-login100-form-btn">
+                <div class="login100-form-bgbtn"></div>
+                <button type="submit" class="login100-form-btn">
+                    Save
+                </button>
+            </div>
+        </div>
+    </form>
+</div>
+
+
+<div>
+    <a asp-action="Index">Back to List</a>
+</div>
+
+@section Scripts {
+    @{await Html.RenderPartialAsync("_ValidationScriptsPartial");}
+}

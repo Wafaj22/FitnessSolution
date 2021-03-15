@@ -1,0 +1,80 @@
+﻿@model FitnessSolution.Models.Workout
+@using System.Security.Claims
+
+@{
+    ViewData["Title"] = "Details";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+}
+
+<section class="prtfolio-s-area">
+    <div class="container">
+        <div class="row">
+            <div class="col-sm-6">
+                <img src="@("~/uploads/"+Model.WorkoutImageName)" asp-append-version="true" alt="">
+            </div>
+            <!-- .col -->
+            <div class="col-sm-6">
+                <div class="portfolio-s-head">
+                    <h2 style="margin-bottom: 0px;">@Html.DisplayFor(model => model.WorkoutTitle)</h2>
+                    @if (((ClaimsIdentity)User.Identity).FindFirst("Check").Value == "trainer")
+                     {
+                        <a asp-action="Edit" asp-route-id="@Model.WorkoutId">Edit</a>
+                        <a asp-action="Index">| Back to List</a>
+                     }
+                    <ul style="margin-top: 30px; margin-bottom: 0px;" class="portfolio-s-info">
+                        <li><span>Category:</span>@Html.DisplayFor(model => model.Type)</li>
+                    </ul>
+                    <p>
+                        @Html.DisplayFor(model => model.WorkoutDescription)
+                    </p>
+                </div>
+
+            </div>
+            <!-- .col -->
+            <div class="col-sm-12">
+                <!-- .widget -->
+                <!-- .col -->
+                <aside class="sidebar">
+                    <!-- .widget -->
+                    <div class="widget">
+                        <h3 class="widget-title">Exercices</h3>
+                        <div class="portfolio-filter">
+                            <ul>
+                                <li class="active"><a href="#" data-filter="*">ALL</a></li>
+                                <li><a href="#" data-filter=".item-1">Beginner</a></li>
+                                <li><a href="#" data-filter=".item-2">Intermediate</a></li>
+                                <li><a href="#" data-filter=".item-3">Advanced</a></li>
+                            </ul>
+                        </div>
+                        <div class="widget-body">
+                            @foreach (var item in Model.Exercices)
+                            {
+                                <!-- .media -->
+                                <div class="media @((item.Level == "Beginner") ? "item-1" : "") @((item.Level == "Intermediate") ? "item-2" : "") @((item.Level == "Advanced") ? "item-3" : "")">
+                                    <div class="media-left media-middle">
+                                        <a asp-controller="Exercices" asp-action="Details" asp-route-id="@item.ExerciceId">
+                                            <img class="media-object" src="@("~/uploads/"+ item.ExerciceImageName)" asp-append-version="true" alt="">
+                                        </a>
+                                    </div>
+                                    <div class="media-body">
+                                        <div class="media-body-inset">
+                                            <h3><a asp-controller="Exercices" asp-action="Details" asp-route-id="@item.ExerciceId">@Html.DisplayFor(modelItem => item.ExerciceTitle)</a></h3>
+                                            <div class="recent-post-date">@Html.DisplayFor(modelItem => item.Level)</div>
+                                        </div>
+                                    </div>
+                                </div>
+                                <!-- .media -->
+                            }
+                        </div>
+                        <!-- .widget-body -->
+                    </div>
+                    <!-- .widget -->
+                </aside>
+                <!-- .sidebar -->
+            </div>
+            <!-- .col -->
+
+        </div>
+    </div>
+
+</section>

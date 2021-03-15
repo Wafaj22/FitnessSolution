@@ -1,0 +1,76 @@
+﻿@model FitnessSolution.Models.Exercice
+
+@{
+    ViewData["Title"] = "Create Exercie";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+}
+
+<div class="wrap-login100" style="width: 1200px; padding: 130px 130px 70px 100px;">
+    <div class="login100-pic">
+        <div class="js-tilt" data-tilt>
+            <a href='https://www.freepik.com/vectors/frame'>
+                <img src="~/img/img-01.png" style="padding-top: 50px;" alt="">
+            </a>
+        </div>
+        <div class="text-center p-t-130">
+            <a asp-action="Index" class="txt2">
+                Back to List
+                <i class="fa fa-long-arrow-right m-l-5" aria-hidden="true"></i>
+            </a>
+        </div>
+    </div>
+    <form class="login100-form" style="width: 500px;" asp-action="Create" enctype="multipart/form-data">
+        <span class="login100-form-title" style="text-align: left; padding-bottom: 0px;">
+            @ViewData["Title"]
+        </span>
+        <a asp-action="Index" class="txt2" style="padding-bottom: 30px;">
+            Back to List
+            <i class="fa fa-long-arrow-right m-l-5" aria-hidden="true"></i>
+        </a>
+        <div asp-validation-summary="ModelOnly" class="text-danger"></div>
+        <div class="wrap-input100">
+            <label asp-for="ExerciceTitle" class="control-label"></label>
+            <input asp-for="ExerciceTitle" class="form-control" />
+            <span asp-validation-for="ExerciceTitle" class="text-danger"></span>
+        </div>
+        <div class="wrap-input100">
+            <label asp-for="ExerciceDescription" class="control-label"></label>
+            <input asp-for="ExerciceDescription" class="form-control" />
+            <span asp-validation-for="ExerciceDescription" class="text-danger"></span>
+        </div>
+        <div class="wrap-input100">
+            <label asp-for="Level" class="control-label"></label>
+            <select asp-for="Level" class="form-control" style="height: 35px;">
+                <option value="Beginner">Beginner</option>
+                <option value="Intermediate">Intermediate</option>
+                <option value="Advanced">Advanced</option>
+            </select>
+            <span asp-validation-for="Level" class="text-danger"></span>
+        </div>
+        <div class="wrap-input100">
+            <label asp-for="ExerciceImageFile" class="control-label"></label>
+            <input asp-for="ExerciceImageFile" class="form-control" />
+            <span asp-validation-for="ExerciceImageFile" class="text-danger"></span>
+        </div>
+        <div class="wrap-input100">
+            <label asp-for="WorkoutId" class="control-label"></label>
+            <select asp-for="WorkoutId" class="form-control" asp-items="ViewBag.WorkoutId" style="height: 35px;"></select>
+        </div>
+        <div class="container-login100-form-btn">
+            <div class="wrap-login100-form-btn">
+                <div class="login100-form-bgbtn"></div>
+                <button type="submit" class="login100-form-btn">
+                    Create
+                </button>
+            </div>
+        </div>
+    </form>
+</div>
+
+<div>
+    <a asp-action="Index">Back to List</a>
+</div>
+
+@section Scripts {
+    @{await Html.RenderPartialAsync("_ValidationScriptsPartial");}
+}
