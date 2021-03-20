@@ -57,18 +57,19 @@
 
                         <ul>
                             <!-- asp-area="" asp-controller="Home" asp-action="Index"
-                            <partial name="_LoginPartial"   -->
+    <partial name="_LoginPartial"   -->
                             <li class="active-menu"><a asp-area="" asp-controller="Home" asp-action="Index">Home</a></li>
                             @if (SignInManager.IsSignedIn(User))
                             {
                                 <li>
                                     <a id="manage" asp-area="Identity" asp-page="/Account/Manage/Index" title="Manage">Profile</a>
                                 </li>
-                                <li>
-                                    <form id="logoutForm" asp-area="Identity" asp-page="/Account/Logout" asp-route-returnUrl="@Url.Action("Index", "Home", new { area = "" })">
-                                        <button id="logout" type="submit" class="nav-logout">Logout</button>
-                                    </form>
-                                </li>
+
+                                @if (((ClaimsIdentity)User.Identity).FindFirst("Check").Value == "member")
+                                {
+                                    <li><a asp-area="" asp-controller="Servicebus" asp-action="ReceivedMessage">Notifications</a></li>
+                                }
+
                                 <li>
                                     <a asp-area="" asp-controller="Home" asp-action="Index">Plans</a>
                                     <span class="mm-togle"><i class="fa fa-caret-down" aria-hidden="true"></i></span>
@@ -95,12 +96,17 @@
                                     </ul>
                                     <!-- .sub-menu -->
                                 </li>
-                             }
-                             else
-                             {
+                                <li>
+                                    <form id="logoutForm" asp-area="Identity" asp-page="/Account/Logout" asp-route-returnUrl="@Url.Action("Index", "Home", new { area = "" })">
+                                        <button id="logout" type="submit" class="nav-logout">Logout</button>
+                                    </form>
+                                </li>
+                            }
+                            else
+                            {
                                 <li><a id="register" asp-area="Identity" asp-page="/Account/Register">Register</a></li>
                                 <li><a id="login" asp-area="Identity" asp-page="/Account/Login">Login</a></li>
-                             }
+                            }
                         </ul>
                     </nav>
                     <!-- .nav-list -->

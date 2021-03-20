@@ -53,7 +53,7 @@
             {
                 <div class="portfolio-item @((item.Type == "Beginner") ? "item-1" : "") @((item.Type == "Intermediate") ? "item-2" : "") @((item.Type == "Advanced") ? "item-3" : "")">
                     <div class="inner-portfolio">
-                        <img src="@("~/uploads/"+item.WorkoutImageName)" asp-append-version="true" alt="">
+                        <img src="@item.WorkoutImageName" asp-append-version="true" alt="">
                         <div class="portfolio-s-head">
                             <h2>@Html.DisplayFor(modelItem => item.WorkoutTitle)</h2>
                             @if (((ClaimsIdentity)User.Identity).FindFirst("Check").Value == "trainer")

@@ -9,10 +9,11 @@ using FitnessSolution.Data;
 using FitnessSolution.Models;
 using Microsoft.AspNetCore.Hosting;
 using System.IO;
+using FitnessSolution.Controllers;
 
 namespace FitnessSolution.Views.Workouts
 {
-    public class WorkoutsController : Controller
+    public class WorkoutsController : BlobsController
     {
         private readonly FitnessSolutionPlansContext _context;
         private readonly IWebHostEnvironment _hostEnvironment;
@@ -26,6 +27,7 @@ namespace FitnessSolution.Views.Workouts
         // GET: Workouts
         public async Task<IActionResult> Index()
         {
+            _context.Workout.ForEachAsync(item => item.WorkoutImageName = GetSingleBlob("workout", item.WorkoutImageName)).Wait();
             return View(await _context.Workout.ToListAsync());
         }
 
@@ -46,6 +48,7 @@ namespace FitnessSolution.Views.Workouts
                 return NotFound();
             }
 
+            workout.WorkoutImageName = GetSingleBlob("workout", workout.WorkoutImageName);
             return View(workout);
         }
 
@@ -68,16 +71,31 @@ namespace FitnessSolution.Views.Workouts
                 string wwwRootPath = _hostEnvironment.WebRootPath;
                 string fileName = Path.GetFileNameWithoutExtension(workout.WorkoutImageFile.FileName);
                 string extension = Path.GetExtension(workout.WorkoutImageFile.FileName);
+                string content = workout.WorkoutImageFile.ContentType;
                 workout.WorkoutImageName = fileName = fileName + DateTime.Now.ToString("yymmssfff") + extension;
                 string path = Path.Combine(wwwRootPath + "/uploads/", fileName);
+              
                 using (var fileStream = new FileStream(path, FileMode.Create))
                 {
                     await workout.WorkoutImageFile.CopyToAsync(fileStream);
                 }
+
+                SimpleUploadFile("workout", workout.WorkoutImageName, path, content);
+
                 //Insert record
                 _context.Add(workout);
                 await _context.SaveChangesAsync();
-                return RedirectToAction(nameof(Index));
+                //return RedirectToAction(nameof(Index));
+                Notification nt = new Notification()
+                {
+                    Plan = workout.WorkoutTitle,
+                    Specification = workout.Type,
+                    Type = "Workout",
+                    Id = workout.WorkoutId,
+                };
+
+                await new ServicebusController().AddNotification(nt);
+                return RedirectToAction("Create", "Exercices");
             }
             return View(workout);
         }
@@ -95,6 +113,8 @@ namespace FitnessSolution.Views.Workouts
             {
                 return NotFound();
             }
+            workout.WorkoutImageName = GetSingleBlob("workout", workout.WorkoutImageName);
+
             return View(workout);
         }
 

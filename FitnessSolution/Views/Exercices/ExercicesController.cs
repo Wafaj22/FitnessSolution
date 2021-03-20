@@ -4,15 +4,19 @@ using System.Linq;
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Rendering;
+using Microsoft.Extensions.Configuration;
+using Microsoft.WindowsAzure.Storage;
+using Microsoft.WindowsAzure.Storage.Blob;
 using Microsoft.EntityFrameworkCore;
 using FitnessSolution.Data;
 using FitnessSolution.Models;
 using Microsoft.AspNetCore.Hosting;
 using System.IO;
+using FitnessSolution.Controllers;
 
 namespace FitnessSolution.Views.Exercices
 {
-    public class ExercicesController : Controller
+    public class ExercicesController : BlobsController
     {
         private readonly FitnessSolutionPlansContext _context;
         private readonly IWebHostEnvironment _hostEnvironment;
@@ -27,6 +31,8 @@ namespace FitnessSolution.Views.Exercices
         public async Task<IActionResult> Index()
         {
             var fitnessSolutionPlansContext = _context.Exercice.Include(e => e.Workout);
+            fitnessSolutionPlansContext.ForEachAsync(item => item.ExerciceImageName = GetSingleBlob("exercice", item.ExerciceImageName)).Wait();
+
             return View(await fitnessSolutionPlansContext.ToListAsync());
         }
 
@@ -45,6 +51,8 @@ namespace FitnessSolution.Views.Exercices
             {
                 return NotFound();
             }
+
+            exercice.ExerciceImageName = GetSingleBlob("exercice", exercice.ExerciceImageName);
 
             return View(exercice);
         }
@@ -69,12 +77,17 @@ namespace FitnessSolution.Views.Exercices
                 string wwwRootPath = _hostEnvironment.WebRootPath;
                 string fileName = Path.GetFileNameWithoutExtension(exercice.ExerciceImageFile.FileName);
                 string extension = Path.GetExtension(exercice.ExerciceImageFile.FileName);
+                string content = exercice.ExerciceImageFile.ContentType;
                 exercice.ExerciceImageName = fileName = fileName + DateTime.Now.ToString("yymmssfff") + extension;
                 string path = Path.Combine(wwwRootPath + "/uploads/", fileName);
+
                 using (var fileStream = new FileStream(path, FileMode.Create))
                 {
                     await exercice.ExerciceImageFile.CopyToAsync(fileStream);
                 }
+
+                bool result = SimpleUploadFile("exercice", exercice.ExerciceImageName, path, content);
+
                 //Insert record
                 _context.Add(exercice);
                 await _context.SaveChangesAsync();
@@ -98,6 +111,9 @@ namespace FitnessSolution.Views.Exercices
                 return NotFound();
             }
             ViewData["WorkoutId"] = new SelectList(_context.Set<Workout>(), "WorkoutId", "WorkoutId", exercice.WorkoutId);
+            
+            exercice.ExerciceImageName = GetSingleBlob("exercice", exercice.ExerciceImageName);
+
             return View(exercice);
         }
 

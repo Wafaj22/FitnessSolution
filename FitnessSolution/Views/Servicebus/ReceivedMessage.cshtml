@@ -1,0 +1,58 @@
+﻿
+@{
+    ViewData["Title"] = "ReceivedMessage";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+}
+<section class="prtfolio-s-area">
+    <div class="container">
+        <div class="row">
+            <div class="portfolio-s-head">
+                <h1>Latest Updates</h1>
+                <h2>Number of new Plans: @ViewBag.MessageCount</h2>
+                <table border="1">
+                    <tr>
+                        <th></th>
+                        <th>Plan</th>
+                        <th>Title</th>
+                        <th>Type</th>
+                        <th></th>
+                    </tr>
+                    @{int i = 0;}
+                    @foreach (var notification in ViewBag.messages)
+                    {
+                        <tr>
+                            <td>@ViewBag.sequence[i]</td>
+                            <td>
+                                @if (notification.Type == "Workout")
+                                {
+                                    <a asp-controller="Workouts" asp-action="Index">@notification.Type</a>
+                                }
+                                @if (notification.Type == "Diet")
+                                {
+                                    <a asp-controller="Diets" asp-action="Index">@notification.Type</a>
+                                }
+                            <td>
+                                @if (notification.Type == "Workout")
+                                {
+                                    <a asp-controller="Workouts" asp-action="Details" asp-route-id="@notification.Id">@notification.Plan</a>
+                                }
+                                @if (notification.Type == "Diet")
+                                {
+                                    <a asp-controller="Diets" asp-action="Details" asp-route-id="@notification.Id">@notification.Plan</a>
+                                }
+                            </td>
+                            <td>@notification.Specification</td>
+                            <td>
+                                <a asp-route-sequence="@ViewBag.sequence[i]" asp-controller="Servicebus" asp-action="Approve">
+                                    Mark as read
+                                </a>
+                            </td>
+                        </tr>
+
+                        i++;
+                    }
+                </table>
+            </div>
+        </div>
+    </div>
+</section>

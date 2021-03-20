@@ -9,10 +9,11 @@ using FitnessSolution.Data;
 using FitnessSolution.Models;
 using Microsoft.AspNetCore.Hosting;
 using System.IO;
+using FitnessSolution.Controllers;
 
 namespace FitnessSolution.Views.Diets
 {
-    public class DietsController : Controller
+    public class DietsController : BlobsController
     {
         private readonly FitnessSolutionPlansContext _context;
         private readonly IWebHostEnvironment _hostEnvironment;
@@ -26,6 +27,7 @@ namespace FitnessSolution.Views.Diets
         // GET: Diets
         public async Task<IActionResult> Index()
         {
+            _context.Diet.ForEachAsync(item => item.DietImageName = GetSingleBlob("diet", item.DietImageName)).Wait();
             return View(await _context.Diet.ToListAsync());
         }
 
@@ -46,7 +48,7 @@ namespace FitnessSolution.Views.Diets
             {
                 return NotFound();
             }
-
+            diet.DietImageName = GetSingleBlob("diet", diet.DietImageName);
             return View(diet);
         }
 
@@ -69,17 +71,31 @@ namespace FitnessSolution.Views.Diets
                 string wwwRootPath = _hostEnvironment.WebRootPath;
                 string fileName = Path.GetFileNameWithoutExtension(diet.DietImageFile.FileName);
                 string extension = Path.GetExtension(diet.DietImageFile.FileName);
+                string content = diet.DietImageFile.ContentType;
                 diet.DietImageName = fileName = fileName + DateTime.Now.ToString("yymmssfff") + extension;
                 string path = Path.Combine(wwwRootPath + "/uploads/", fileName);
+
                 using (var fileStream = new FileStream(path, FileMode.Create))
                 {
                     await diet.DietImageFile.CopyToAsync(fileStream);
                 }
+                
+                SimpleUploadFile("diet", diet.DietImageName, path, content);
+
                 //Insert record
                 _context.Add(diet);
                 await _context.SaveChangesAsync();
                 System.Diagnostics.Debug.WriteLine(diet.DietId);
-                //nameof(Index)
+                //return RedirectToAction(nameof(Index));
+                Notification nt = new Notification()
+                {
+                    Plan = diet.DietTitle,
+                    Specification = diet.Type,
+                    Type = "Diet",
+                    Id = diet.DietId,
+                };
+
+                await new ServicebusController().AddNotification(nt);
                 return RedirectToAction("Create", "Recipes");
             }
             return View(diet);
@@ -98,6 +114,8 @@ namespace FitnessSolution.Views.Diets
             {
                 return NotFound();
             }
+            diet.DietImageName = GetSingleBlob("diet", diet.DietImageName);
+
             return View(diet);
         }
 

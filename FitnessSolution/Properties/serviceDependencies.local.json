@@ -12,9 +12,9 @@
       "type": "secrets.user"
     },
     "storage1": {
-      "resourceId": "/subscriptions/[parameters('subscriptionId')]/resourcegroups/[parameters('resourceGroupName')]/providers/Microsoft.Storage/storageAccounts/fitnesssolutionstorage",
+      "resourceId": "/subscriptions/[parameters('subscriptionId')]/resourceGroups/[parameters('resourceGroupName')]/providers/Microsoft.Storage/storageAccounts/fitnesssolutionstorage",
       "type": "storage.azure",
-      "connectionId": "blobstorageconnectionstring",
+      "connectionId": "BlobStorageConnection",
       "secretStore": "LocalSecretsFile"
     }
   }

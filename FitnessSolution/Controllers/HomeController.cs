@@ -12,7 +12,7 @@ using System.Threading.Tasks;
 
 namespace FitnessSolution.Controllers
 {
-    public class HomeController : Controller
+    public class HomeController : BlobsController
     {
         private readonly ILogger<HomeController> _logger;
         private readonly FitnessSolutionPlansContext _context;
@@ -26,6 +26,10 @@ namespace FitnessSolution.Controllers
         public async Task<IActionResult> Index()
         {
             dynamic mymodel = new ExpandoObject();
+
+            _context.Diet.ForEachAsync(item => item.DietImageName = GetSingleBlob("diet", item.DietImageName)).Wait();
+            _context.Workout.ForEachAsync(item => item.WorkoutImageName = GetSingleBlob("workout", item.WorkoutImageName)).Wait();
+
             mymodel.Workouts = await _context.Workout.ToListAsync();
             mymodel.Diets = await _context.Diet.ToListAsync();
             return View(mymodel);

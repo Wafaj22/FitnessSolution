@@ -9,10 +9,11 @@ using FitnessSolution.Data;
 using FitnessSolution.Models;
 using Microsoft.AspNetCore.Hosting;
 using System.IO;
+using FitnessSolution.Controllers;
 
 namespace FitnessSolution.Views.Recipies
 {
-    public class RecipesController : Controller
+    public class RecipesController : BlobsController
     {
         private readonly FitnessSolutionPlansContext _context;
         private readonly IWebHostEnvironment _hostEnvironment;
@@ -27,6 +28,8 @@ namespace FitnessSolution.Views.Recipies
         public async Task<IActionResult> Index()
         {
             var fitnessSolutionPlansContext = _context.Recipe.Include(r => r.Diet);
+            fitnessSolutionPlansContext.ForEachAsync(item => item.RecipeImageName = GetSingleBlob("recipe", item.RecipeImageName)).Wait();
+
             return View(await fitnessSolutionPlansContext.ToListAsync());
         }
 
@@ -45,6 +48,8 @@ namespace FitnessSolution.Views.Recipies
             {
                 return NotFound();
             }
+
+            recipe.RecipeImageName = GetSingleBlob("recipe", recipe.RecipeImageName);
 
             return View(recipe);
         }
@@ -69,12 +74,17 @@ namespace FitnessSolution.Views.Recipies
                 string wwwRootPath = _hostEnvironment.WebRootPath;
                 string fileName = Path.GetFileNameWithoutExtension(recipe.RecipeImageFile.FileName);
                 string extension = Path.GetExtension(recipe.RecipeImageFile.FileName);
+                string content = recipe.RecipeImageFile.ContentType;
                 recipe.RecipeImageName = fileName = fileName + DateTime.Now.ToString("yymmssfff") + extension;
                 string path = Path.Combine(wwwRootPath + "/uploads/", fileName);
+
                 using (var fileStream = new FileStream(path, FileMode.Create))
                 {
                     await recipe.RecipeImageFile.CopyToAsync(fileStream);
                 }
+
+                bool result = SimpleUploadFile("recipe", recipe.RecipeImageName, path, content);
+
                 //Insert record
                 _context.Add(recipe);
                 await _context.SaveChangesAsync();
@@ -98,6 +108,9 @@ namespace FitnessSolution.Views.Recipies
                 return NotFound();
             }
             ViewData["DietId"] = new SelectList(_context.Diet, "DietId", "DietId", recipe.DietId);
+
+            recipe.RecipeImageName = GetSingleBlob("recipe", recipe.RecipeImageName);
+
             return View(recipe);
         }
 

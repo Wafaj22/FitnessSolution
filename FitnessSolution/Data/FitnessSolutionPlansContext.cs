@@ -21,5 +21,7 @@ namespace FitnessSolution.Data
         public DbSet<FitnessSolution.Models.Recipe> Recipe { get; set; }
 
         public DbSet<FitnessSolution.Models.Workout> Workout { get; set; }
+
+        public DbSet<FitnessSolution.Models.Notification> Notification { get; set; }
     }
 }

@@ -53,7 +53,7 @@
             {
                 <div class="portfolio-item @((item.Type == "Low-crab") ? "item-2" : "") @((item.Type == "Low-fat") ? "item-1" : "") @((item.Type == "Mediterranean") ? "item-3" : "")">
                     <div class="inner-portfolio">
-                        <img src="@("~/uploads/"+item.DietImageName)" asp-append-version="true" alt="">
+                        <img src="@item.DietImageName" asp-append-version="true" alt="">
                         <div class="portfolio-s-head">
                             <h2>@Html.DisplayFor(modelItem => item.DietTitle)</h2>
                             @if (((ClaimsIdentity)User.Identity).FindFirst("Check").Value == "nutritionist")
