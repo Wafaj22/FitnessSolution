@@ -1,4 +1,4 @@
-﻿@model FitnessSolution.Models.Diet
+﻿@model FitnessSolution.Models.DietEntity
 
 @{
     ViewData["Title"] = "Edit Diet";
@@ -29,7 +29,8 @@
             <i class="fa fa-long-arrow-right m-l-5" aria-hidden="true"></i>
         </a>
         <div asp-validation-summary="ModelOnly" class="text-danger"></div>
-        <input type="hidden" asp-for="DietId" />
+        <input type="hidden" asp-for="PartitionKey" />
+        <input type="hidden" asp-for="RowKey" />
         <input type="hidden" asp-for="DietImageName" />
         <div class="wrap-input100">
             <label asp-for="DietTitle" class="control-label"></label>

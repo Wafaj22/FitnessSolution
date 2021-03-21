@@ -1,0 +1,68 @@
+﻿@model IEnumerable<FitnessSolution.Areas.Identity.Data.FitnessSolutionUser>
+@using FitnessSolution.Helpers
+
+@{
+    ViewData["Title"] = "Users";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+}
+
+@if (ViewBag.msg != null)
+{
+    <script>alert("@ViewBag.msg");</script>
+}
+
+<section class="hero-area hero-area-all hero-meal">
+    <div class="container">
+        <div class="hero-title">
+            <h1>Manage Users</h1>
+            <div class="breadcrumb">
+                <ul>
+                    <li><a href="index">Home</a></li>
+                    <li>Users</li>
+                </ul>
+            </div>
+        </div>
+    </div>
+</section>
+
+
+<section class="portfolio-area" style="padding-top: 0px; padding-bottom: 200px; height: 100%">
+    <div class="col-md-9"></div>
+    <div class="col-md-3">
+        <div class="text-center p-t-35">
+            <a asp-action="RegisterUser" class="btn-info-secondary" style="font-size: 17px;">
+                Create New User
+                <i class="fa fa-long-arrow-right m-l-5" aria-hidden="true"></i>
+            </a>
+        </div>
+    </div>
+    <div class="container p-l-r-0 portfolio-even" style="height: 100%">
+        <div class="container p-l-r-0 portfolio-even" style="margin-bottom: 120px; margin-top:50px; height: 100%">
+            <table class="table table-sm" style="height: 100%; margin-top: 50px">
+                <tr><th>ID</th><th>Email</th><th>Name</th><th>Role</th></tr>
+                @foreach (FitnessSolution.Areas.Identity.Data.FitnessSolutionUser user in Model)
+                {
+                    @if (user.Role != Constants.ROLE_ADMIN)
+                    {
+                        <tr>
+                            <td>@user.Id</td>
+                            <td>@user.UserName</td>
+                            <td>@user.Name</td>
+                            <td>@user.Role</td>
+                            <td>
+                                <a class="btn btn-sm btn-primary" asp-action="Update" asp-route-id="@user.Id">
+                                    Update
+                                </a>
+                            </td>
+                            <td>
+                                <a class="btn btn-sm btn-primary" asp-action="Delete" asp-route-id="@user.Id">
+                                    Delete
+                                </a>
+                            </td>
+                        </tr>
+                    }
+                }
+            </table>
+        </div>
+    </div>
+</section>

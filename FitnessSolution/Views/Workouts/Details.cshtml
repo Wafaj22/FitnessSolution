@@ -1,5 +1,10 @@
 ﻿@model FitnessSolution.Models.Workout
-@using System.Security.Claims
+@using Microsoft.AspNetCore.Identity
+@using FitnessSolution.Areas.Identity.Data
+@using FitnessSolution.Helpers
+
+@inject SignInManager<FitnessSolutionUser> SignInManager
+@inject UserManager<FitnessSolutionUser> UserManager
 
 @{
     ViewData["Title"] = "Details";
@@ -16,11 +21,11 @@
             <div class="col-sm-6">
                 <div class="portfolio-s-head">
                     <h2 style="margin-bottom: 0px;">@Html.DisplayFor(model => model.WorkoutTitle)</h2>
-                    @if (((ClaimsIdentity)User.Identity).FindFirst("Check").Value == "trainer")
-                     {
+                    @if (User.IsInRole(Constants.ROLE_TRAINER) || User.IsInRole(Constants.ROLE_ADMIN))
+                    {
                         <a asp-action="Edit" asp-route-id="@Model.WorkoutId">Edit</a>
                         <a asp-action="Index">| Back to List</a>
-                     }
+                    }
                     <ul style="margin-top: 30px; margin-bottom: 0px;" class="portfolio-s-info">
                         <li><span>Category:</span>@Html.DisplayFor(model => model.Type)</li>
                     </ul>

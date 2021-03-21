@@ -1,0 +1,68 @@
+﻿@model Register
+@using FitnessSolution.Helpers
+
+@{
+    ViewData["Title"] = "Create User";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+}
+
+<div asp-validation-summary="All" class="text-danger"></div>
+<div class="wrap-login100" style="width: 1200px; padding: 130px 130px 70px 100px;">
+    <div class="login100-pic">
+        <div class="js-tilt" data-tilt>
+            <a href='https://www.freepik.com/vectors/frame'>
+                <img src="~/img/img-01.png" style="padding-top: 50px;" alt="">
+            </a>
+        </div>
+        <div class="text-center p-t-130">
+            <a asp-action="Index" class="txt2">
+                Back to List
+                <i class="fa fa-long-arrow-right m-l-5" aria-hidden="true"></i>
+            </a>
+        </div>
+    </div>
+    <form class="login100-form" style="width: 500px;" id="profile-form" method="post">
+        <div asp-validation-summary="All" class="text-danger"></div>
+        <div class="form-group">
+            <label asp-for="Name"></label>
+            <input asp-for="Name" class="form-control" />
+            <span asp-validation-for="Name" class="text-danger"></span>
+        </div>
+        <div class="form-group">
+            <label asp-for="Username"></label>
+            <input asp-for="Username" class="form-control" />
+            <span asp-validation-for="Username" class="text-danger"></span>
+        </div>
+        <div class="form-group">
+            <label asp-for="Password"></label>
+            <input asp-for="Password" class="form-control" />
+            <span asp-validation-for="Password" class="text-danger"></span>
+        </div>
+        <div class="form-group">
+            <label asp-for="DOB"></label>
+            <input asp-for="DOB" class="form-control" />
+            <span asp-validation-for="DOB" class="text-danger"></span>
+        </div>
+
+        <div class="form-group">
+            <label asp-for="PhoneNumber"></label>
+            <input asp-for="PhoneNumber" class="form-control" />
+            <span asp-validation-for="PhoneNumber" class="text-danger"></span>
+        </div>
+        <div class="form-group">
+            <label asp-for="Role"></label>
+            <select asp-for="Role" class="form-control" style="height: 35px;">
+                <option value="">Select Role</option>
+                <option value="@Constants.ROLE_MEMBER">@Constants.ROLE_MEMBER</option>
+                <option value="@Constants.ROLE_TRAINER">@Constants.ROLE_TRAINER</option>
+                <option value="@Constants.ROLE_NUTRITIONIST">@Constants.ROLE_NUTRITIONIST</option>
+            </select>
+            <span asp-validation-for="Role" class="text-danger"></span>
+        </div>
+        <button type="submit" class="btn btn-primary">Create</button>
+    </form>
+</div>
+
+@section Scripts {
+    @{await Html.RenderPartialAsync("_ValidationScriptsPartial");}
+}

@@ -1,5 +1,10 @@
-﻿@model FitnessSolution.Models.Recipe
-@using System.Security.Claims
+﻿@model FitnessSolution.Models.RecipeEntity
+@using Microsoft.AspNetCore.Identity
+@using FitnessSolution.Areas.Identity.Data
+@using FitnessSolution.Helpers
+
+@inject SignInManager<FitnessSolutionUser> SignInManager
+@inject UserManager<FitnessSolutionUser> UserManager
 
 @{
     ViewData["Title"] = "Details";
@@ -16,11 +21,11 @@
             <div class="col-sm-6">
                 <div class="portfolio-s-head">
                     <h2 style="margin-bottom: 0px;">@Html.DisplayFor(model => model.RecipeTitle)</h2>
-                    @if (((ClaimsIdentity)User.Identity).FindFirst("Check").Value == "nutritionist")
+                    @if (User.IsInRole(Constants.ROLE_NUTRITIONIST) || User.IsInRole(Constants.ROLE_ADMIN))
                     {
-                        <a asp-action="Edit" asp-route-id="@Model.RecipeId">Edit</a>
+                        <a asp-action="Edit" asp-route-id="@Model.RowKey">Edit</a>
                     }
-                    <a asp-action = "Index" > Back to List</a>
+                    <a asp-action="Index"> Back to List</a>
                     <ul style="margin-top: 30px; margin-bottom: 0px;" class="portfolio-s-info">
                         <li><span>Category:</span>@Html.DisplayFor(model => model.Type)</li>
                     </ul>
@@ -47,14 +52,14 @@
                             <!-- .media -->
                             <div class="media">
                                 <div class="media-left media-middle">
-                                    <a asp-controller="Diets" asp-action="Details" asp-route-id="@Model.DietId">
-                                        <img class="media-object" src="@("~/uploads/"+ Model.Diet.DietImageName)" asp-append-version="true" alt="">
+                                    <a asp-controller="Diets" asp-action="Details" asp-route-id="@Model.PartitionKey">
+                                        <img class="media-object" src="@Model.DietEntity.DietImageName" asp-append-version="true" alt="">
                                     </a>
                                 </div>
                                 <div class="media-body">
                                     <div class="media-body-inset">
-                                        <h3><a asp-controller="Diets" asp-action="Details" asp-route-id="@Model.DietId">@Html.DisplayFor(modelItem => Model.Diet.DietTitle)</a></h3>
-                                        <div class="recent-post-date">@Html.DisplayFor(modelItem => Model.Diet.Type)</div>
+                                        <h3><a asp-controller="Diets" asp-action="Details" asp-route-id="@Model.PartitionKey">@Html.DisplayFor(modelItem => Model.DietEntity.DietTitle)</a></h3>
+                                        <div class="recent-post-date">@Html.DisplayFor(modelItem => Model.DietEntity.Type)</div>
                                     </div>
                                 </div>
                             </div>

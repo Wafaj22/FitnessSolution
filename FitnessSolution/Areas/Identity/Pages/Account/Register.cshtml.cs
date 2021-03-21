@@ -93,6 +93,7 @@ namespace FitnessSolution.Areas.Identity.Pages.Account
                     EmailConfirmed = true
                 };
                 var result = await _userManager.CreateAsync(user, Input.Password);
+                await _userManager.AddToRoleAsync(user, Input.Role);
                 if (result.Succeeded)
                 {
                     _logger.LogInformation("User created a new account with password.");

@@ -20,7 +20,8 @@ namespace FitnessSolution.Areas.Identity
                     options.UseSqlServer(
                         context.Configuration.GetConnectionString("FitnessSolutionContextConnection")));
 
-                services.AddDefaultIdentity<FitnessSolutionUser>(options => options.SignIn.RequireConfirmedAccount = true)
+                services.AddDefaultIdentity<FitnessSolutionUser>(options => options.SignIn.RequireConfirmedAccount = false)
+                    .AddRoles<IdentityRole>()
                     .AddEntityFrameworkStores<FitnessSolutionContext>();
             });
         }

@@ -14,6 +14,9 @@ using Microsoft.Extensions.Azure;
 using Azure.Storage.Queues;
 using Azure.Storage.Blobs;
 using Azure.Core.Extensions;
+using Microsoft.AspNetCore.Identity;
+using FitnessSolution.Areas.Identity.Data;
+using FitnessSolution.Helpers;
 
 namespace FitnessSolution
 {
@@ -68,8 +71,44 @@ namespace FitnessSolution
                     pattern: "{controller=Home}/{action=Index}/{id?}");
                 endpoints.MapRazorPages();
             });
+            createRolesAndAdminUserAsync(app);
+        }
+
+        private void createRolesAndAdminUserAsync(IApplicationBuilder app)
+        {
+            var scopeFactory = app.ApplicationServices.GetRequiredService<IServiceScopeFactory>();
+            var scope = scopeFactory.CreateScope();
+            var roleManager = scope.ServiceProvider.GetRequiredService<RoleManager<IdentityRole>>();
+            var userManager = scope.ServiceProvider.GetRequiredService<UserManager<FitnessSolutionUser>>();
+
+            var adminRoleExist = roleManager.RoleExistsAsync(Constants.ROLE_ADMIN).Result;
+            if (!adminRoleExist)
+            {
+                _ = roleManager.CreateAsync(new IdentityRole(Constants.ROLE_ADMIN)).Result;
+                _ = roleManager.CreateAsync(new IdentityRole(Constants.ROLE_MEMBER)).Result;
+                _ = roleManager.CreateAsync(new IdentityRole(Constants.ROLE_TRAINER)).Result;
+                _ = roleManager.CreateAsync(new IdentityRole(Constants.ROLE_NUTRITIONIST)).Result;
+            }
+
+            FitnessSolutionUser admin = new FitnessSolutionUser
+            {
+                UserName = "admin@gmail.com",
+                Email = "admin@gmail.com",
+                Name = "Admin",
+                Role = Constants.ROLE_ADMIN,
+            };
+
+            string adminPassword = "Admin123!";
+
+            var createResult = userManager.CreateAsync(admin, adminPassword).Result;
+            if (createResult.Succeeded)
+            {
+                _ = userManager.AddToRoleAsync(admin, Constants.ROLE_ADMIN).Result;
+            }
         }
     }
+
+
     internal static class StartupExtensions
     {
         public static IAzureClientBuilder<BlobServiceClient, BlobClientOptions> AddBlobServiceClient(this AzureClientFactoryBuilder builder, string serviceUriOrConnectionString, bool preferMsi)

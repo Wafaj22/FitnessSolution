@@ -10,49 +10,54 @@ using FitnessSolution.Models;
 using Microsoft.AspNetCore.Hosting;
 using System.IO;
 using FitnessSolution.Controllers;
+using Microsoft.WindowsAzure.Storage.Table;
+using FitnessSolution.Helpers;
+using Microsoft.WindowsAzure.Storage;
+using Microsoft.AspNetCore.Authorization;
 
 namespace FitnessSolution.Views.Diets
 {
     public class DietsController : BlobsController
     {
-        private readonly FitnessSolutionPlansContext _context;
         private readonly IWebHostEnvironment _hostEnvironment;
+
+        private CloudTable recipesTable, dietTable;
 
         public DietsController(FitnessSolutionPlansContext context, IWebHostEnvironment hostEnvironment)
         {
-            _context = context;
             this._hostEnvironment = hostEnvironment;
+            recipesTable = TableManager.GetStorageTableAsync(TableManager.RECIPES_TABLE).Result;
+            dietTable = TableManager.GetStorageTableAsync(TableManager.DIETS_TABLE).Result;
         }
 
         // GET: Diets
+        [Authorize]
         public async Task<IActionResult> Index()
         {
-            _context.Diet.ForEachAsync(item => item.DietImageName = GetSingleBlob("diet", item.DietImageName)).Wait();
-            return View(await _context.Diet.ToListAsync());
+            var dietList = await RetrieveAllDiets();
+            dietList.ForEach(item => item.DietImageName = GetSingleBlob("diet", item.DietImageName));
+            return View(dietList);
         }
 
         // GET: Diets/Details/5
-        public async Task<IActionResult> Details(int? id)
+        [Authorize]
+        public async Task<IActionResult> Details(String id)
         {
             if (id == null)
             {
                 return NotFound();
             }
 
-            var diet = await _context.Diet
-                .Include(s => s.Recipes)
-                .AsNoTracking()
-                .FirstOrDefaultAsync(m => m.DietId == id);
-
+            var diet = await RetrieveDiet(id);
             if (diet == null)
             {
                 return NotFound();
             }
-            diet.DietImageName = GetSingleBlob("diet", diet.DietImageName);
             return View(diet);
         }
 
         // GET: Diets/Create
+        [AuthorizeRoles(Constants.ROLE_NUTRITIONIST, Constants.ROLE_ADMIN)]
         public IActionResult Create()
         {
             return View();
@@ -63,7 +68,8 @@ namespace FitnessSolution.Views.Diets
         // more details, see http://go.microsoft.com/fwlink/?LinkId=317598.
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> Create([Bind("DietId,DietTitle,DietImageFile,DietDescription,Type")] Diet diet)
+        [AuthorizeRoles(Constants.ROLE_NUTRITIONIST, Constants.ROLE_ADMIN)]
+        public async Task<IActionResult> Create([Bind("DietTitle,DietImageFile,DietDescription,Type")] DietEntity diet)
         {
             if (ModelState.IsValid)
             {
@@ -79,20 +85,22 @@ namespace FitnessSolution.Views.Diets
                 {
                     await diet.DietImageFile.CopyToAsync(fileStream);
                 }
-                
+
                 SimpleUploadFile("diet", diet.DietImageName, path, content);
 
-                //Insert record
-                _context.Add(diet);
-                await _context.SaveChangesAsync();
-                System.Diagnostics.Debug.WriteLine(diet.DietId);
+                var dietId = Guid.NewGuid().ToString();
+                diet.PartitionKey = dietId;
+                diet.RowKey = dietId;
+                await InsertOrMergeDiet(diet);
+
+                System.Diagnostics.Debug.WriteLine(diet.RowKey);
                 //return RedirectToAction(nameof(Index));
                 Notification nt = new Notification()
                 {
                     Plan = diet.DietTitle,
                     Specification = diet.Type,
                     Type = "Diet",
-                    Id = diet.DietId,
+                    Id = diet.PartitionKey,
                 };
 
                 await new ServicebusController().AddNotification(nt);
@@ -102,19 +110,14 @@ namespace FitnessSolution.Views.Diets
         }
 
         // GET: Diets/Edit/5
-        public async Task<IActionResult> Edit(int? id)
+        [AuthorizeRoles(Constants.ROLE_NUTRITIONIST, Constants.ROLE_ADMIN)]
+        public async Task<IActionResult> Edit(String id)
         {
-            if (id == null)
-            {
-                return NotFound();
-            }
-
-            var diet = await _context.Diet.FindAsync(id);
+            var diet = await RetrieveDiet(id);
             if (diet == null)
             {
                 return NotFound();
             }
-            diet.DietImageName = GetSingleBlob("diet", diet.DietImageName);
 
             return View(diet);
         }
@@ -124,46 +127,27 @@ namespace FitnessSolution.Views.Diets
         // more details, see http://go.microsoft.com/fwlink/?LinkId=317598.
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> Edit(int id, [Bind("DietId,DietTitle,DietDescription,Type,DietImageName")] Diet diet)
+        [AuthorizeRoles(Constants.ROLE_NUTRITIONIST, Constants.ROLE_ADMIN)]
+        public async Task<IActionResult> Edit(String id, [Bind("PartitionKey,RowKey,DietTitle,DietDescription,Type,DietImageName")] DietEntity diet)
         {
-            if (id != diet.DietId)
+            if (id != diet.PartitionKey)
             {
                 return NotFound();
             }
 
-            if (ModelState.IsValid)
+            if (diet.DietTitle != null && diet.DietDescription != null && diet.Type != null)
             {
-                try
-                {
-                    _context.Update(diet);
-                    await _context.SaveChangesAsync();
-                }
-                catch (DbUpdateConcurrencyException)
-                {
-                    if (!DietExists(diet.DietId))
-                    {
-                        return NotFound();
-                    }
-                    else
-                    {
-                        throw;
-                    }
-                }
+                await InsertOrMergeDiet(diet);
                 return RedirectToAction(nameof(Index));
             }
             return View(diet);
         }
 
         // GET: Diets/Delete/5
-        public async Task<IActionResult> Delete(int? id)
+        [AuthorizeRoles(Constants.ROLE_NUTRITIONIST, Constants.ROLE_ADMIN)]
+        public async Task<IActionResult> Delete(String id)
         {
-            if (id == null)
-            {
-                return NotFound();
-            }
-
-            var diet = await _context.Diet
-                .FirstOrDefaultAsync(m => m.DietId == id);
+            var diet = await RetrieveDiet(id);
             if (diet == null)
             {
                 return NotFound();
@@ -175,17 +159,116 @@ namespace FitnessSolution.Views.Diets
         // POST: Diets/Delete/5
         [HttpPost, ActionName("Delete")]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> DeleteConfirmed(int id)
+        [AuthorizeRoles(Constants.ROLE_NUTRITIONIST, Constants.ROLE_ADMIN)]
+        public async Task<IActionResult> DeleteConfirmed(String id)
         {
-            var diet = await _context.Diet.FindAsync(id);
-            _context.Diet.Remove(diet);
-            await _context.SaveChangesAsync();
+            var diet = await RetrieveDiet(id);
+            await DeleteDiet(diet);
             return RedirectToAction(nameof(Index));
         }
 
-        private bool DietExists(int id)
+        public async Task<List<DietEntity>> RetrieveAllDiets()
         {
-            return _context.Diet.Any(e => e.DietId == id);
+            try
+            {
+                TableQuery<DietEntity> recipeQuery = new TableQuery<DietEntity>();
+                var recipes = await dietTable.ExecuteQuerySegmentedAsync(recipeQuery, null);
+                return recipes.Results;
+            }
+            catch (StorageException e)
+            {
+                Console.WriteLine(e.Message);
+                Console.ReadLine();
+                throw;
+            }
+        }
+
+        public async Task<DietEntity> RetrieveDiet(string dietId)
+        {
+            try
+            {
+                TableQuery<RecipeEntity> recipeQuery = new TableQuery<RecipeEntity>();
+                TableQuery<DietEntity> dietQuery = new TableQuery<DietEntity>();
+
+                string filter = TableQuery.GenerateFilterCondition("PartitionKey", QueryComparisons.Equal, dietId);
+                recipeQuery = recipeQuery.Where(filter);
+                dietQuery = dietQuery.Where(filter);
+
+                var recipesTask = await recipesTable.ExecuteQuerySegmentedAsync(recipeQuery, null);
+              
+                var diet = dietTable.ExecuteQuerySegmentedAsync(dietQuery, null).Result.FirstOrDefault();
+                var recipes = recipesTask.Results;
+                recipes.ForEach(item => item.RecipeImageName = GetSingleBlob("recipe", item.RecipeImageName));
+
+                diet.Recipes = recipes;
+                diet.DietImageName = GetSingleBlob("diet", diet.DietImageName);
+
+                return diet;
+            }
+            catch (StorageException e)
+            {
+                Console.WriteLine(e.Message);
+                Console.ReadLine();
+                throw;
+            }
+        }
+
+        public async Task<DietEntity> InsertOrMergeDiet(DietEntity entity)
+        {
+            if (entity == null)
+            {
+                throw new ArgumentNullException("entity");
+            }
+
+            try
+            {
+                // Create the InsertOrReplace table operation
+                TableOperation insertOrMergeOperation = TableOperation.InsertOrMerge(entity);
+
+                // Execute the operation.
+                TableResult result = await dietTable.ExecuteAsync(insertOrMergeOperation);
+                DietEntity insertedDiet = result.Result as DietEntity;
+
+                return insertedDiet;
+            }
+            catch (StorageException e)
+            {
+                Console.WriteLine(e.Message);
+                Console.ReadLine();
+                throw;
+            }
+        }
+
+        public async Task DeleteDiet(DietEntity entity)
+        {
+            if (entity == null)
+            {
+                throw new ArgumentNullException("entity");
+            }
+
+            try
+            {
+                var batchOperation = new TableBatchOperation();
+                var deleteRecipesQuery = new TableQuery<RecipeEntity>()
+                    .Where(TableQuery.GenerateFilterCondition("PartitionKey",
+                    QueryComparisons.Equal, entity.RowKey))
+                        .Select(new string[] { "RowKey" });
+                foreach (var e in await recipesTable.ExecuteQuerySegmentedAsync(deleteRecipesQuery, null))
+                    batchOperation.Delete(e);
+
+                await recipesTable.ExecuteBatchAsync(batchOperation);
+
+                // Create the Delete table operation
+                TableOperation deleteOperation = TableOperation.Delete(entity);
+                // Execute the operation.
+                TableResult result = await dietTable.ExecuteAsync(deleteOperation);
+            }
+            catch (StorageException e)
+            {
+                Console.WriteLine(e.Message);
+                Console.ReadLine();
+                throw;
+            }
         }
     }
 }

@@ -10,6 +10,8 @@ using FitnessSolution.Models;
 using Microsoft.AspNetCore.Hosting;
 using System.IO;
 using FitnessSolution.Controllers;
+using Microsoft.AspNetCore.Authorization;
+using FitnessSolution.Helpers;
 
 namespace FitnessSolution.Views.Workouts
 {
@@ -25,6 +27,7 @@ namespace FitnessSolution.Views.Workouts
         }
 
         // GET: Workouts
+        [Authorize]
         public async Task<IActionResult> Index()
         {
             _context.Workout.ForEachAsync(item => item.WorkoutImageName = GetSingleBlob("workout", item.WorkoutImageName)).Wait();
@@ -32,6 +35,7 @@ namespace FitnessSolution.Views.Workouts
         }
 
         // GET: Workouts/Details/5
+        [Authorize]
         public async Task<IActionResult> Details(int? id)
         {
             if (id == null)
@@ -53,6 +57,7 @@ namespace FitnessSolution.Views.Workouts
         }
 
         // GET: Workouts/Create
+        [AuthorizeRoles(Constants.ROLE_TRAINER, Constants.ROLE_ADMIN)]
         public IActionResult Create()
         {
             return View();
@@ -63,6 +68,7 @@ namespace FitnessSolution.Views.Workouts
         // more details, see http://go.microsoft.com/fwlink/?LinkId=317598.
         [HttpPost]
         [ValidateAntiForgeryToken]
+        [AuthorizeRoles(Constants.ROLE_TRAINER, Constants.ROLE_ADMIN)]
         public async Task<IActionResult> Create([Bind("WorkoutId,WorkoutTitle,WorkoutDescription,Type,WorkoutImageFile")] Workout workout)
         {
             if (ModelState.IsValid)
@@ -91,7 +97,7 @@ namespace FitnessSolution.Views.Workouts
                     Plan = workout.WorkoutTitle,
                     Specification = workout.Type,
                     Type = "Workout",
-                    Id = workout.WorkoutId,
+                    Id = workout.WorkoutId.ToString(),
                 };
 
                 await new ServicebusController().AddNotification(nt);
@@ -101,6 +107,7 @@ namespace FitnessSolution.Views.Workouts
         }
 
         // GET: Workouts/Edit/5
+        [AuthorizeRoles(Constants.ROLE_TRAINER, Constants.ROLE_ADMIN)]
         public async Task<IActionResult> Edit(int? id)
         {
             if (id == null)
@@ -123,6 +130,7 @@ namespace FitnessSolution.Views.Workouts
         // more details, see http://go.microsoft.com/fwlink/?LinkId=317598.
         [HttpPost]
         [ValidateAntiForgeryToken]
+        [AuthorizeRoles(Constants.ROLE_TRAINER, Constants.ROLE_ADMIN)]
         public async Task<IActionResult> Edit(int id, [Bind("WorkoutId,WorkoutTitle,WorkoutDescription,Type,WorkoutImageName")] Workout workout)
         {
             if (id != workout.WorkoutId)
@@ -154,6 +162,7 @@ namespace FitnessSolution.Views.Workouts
         }
 
         // GET: Workouts/Delete/5
+        [AuthorizeRoles(Constants.ROLE_TRAINER, Constants.ROLE_ADMIN)]
         public async Task<IActionResult> Delete(int? id)
         {
             if (id == null)
@@ -174,6 +183,7 @@ namespace FitnessSolution.Views.Workouts
         // POST: Workouts/Delete/5
         [HttpPost, ActionName("Delete")]
         [ValidateAntiForgeryToken]
+        [AuthorizeRoles(Constants.ROLE_TRAINER, Constants.ROLE_ADMIN)]
         public async Task<IActionResult> DeleteConfirmed(int id)
         {
             var workout = await _context.Workout.FindAsync(id);

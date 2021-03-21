@@ -1,4 +1,4 @@
-﻿@model FitnessSolution.Models.Recipe
+﻿@model FitnessSolution.Models.RecipeEntity
 
 @{
     ViewData["Title"] = "Delete";
@@ -25,7 +25,7 @@
             Back to List
             <i class="fa fa-long-arrow-right m-l-5" aria-hidden="true"></i>
         </a>
-        <input type="hidden" asp-for="RecipeId" />
+        <input type="hidden" asp-for="RowKey" />
         <dl class="row">
             <dt class="col-sm-2">
                 @Html.DisplayNameFor(model => model.RecipeTitle)
@@ -46,10 +46,10 @@
                 @Html.DisplayFor(model => model.Type)
             </dd>
             <dt class="col-sm-2">
-                @Html.DisplayNameFor(model => model.Diet)
+                @Html.DisplayNameFor(model => model.DietEntity.DietTitle)
             </dt>
             <dd class="col-sm-10">
-                @Html.DisplayFor(model => model.Diet.DietId)
+                @Html.DisplayFor(model => model.DietEntity.DietTitle)
             </dd>
         </dl>
         <div class="container-login100-form-btn">

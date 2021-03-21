@@ -1,4 +1,4 @@
-﻿@model FitnessSolution.Models.Diet
+﻿@model FitnessSolution.Models.DietEntity
 
 @{
     ViewData["Title"] = "Delete";
@@ -25,7 +25,7 @@
             Back to List
             <i class="fa fa-long-arrow-right m-l-5" aria-hidden="true"></i>
         </a>
-        <input type="hidden" asp-for="DietId" />
+        <input type="hidden" asp-for="PartitionKey" />
         <dl class="row">
             <dt class="col-sm-2">
                 @Html.DisplayNameFor(model => model.DietTitle)

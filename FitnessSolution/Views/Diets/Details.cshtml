@@ -1,5 +1,10 @@
-﻿@model FitnessSolution.Models.Diet
-@using System.Security.Claims
+﻿@model FitnessSolution.Models.DietEntity
+@using Microsoft.AspNetCore.Identity
+@using FitnessSolution.Areas.Identity.Data
+@using FitnessSolution.Helpers
+
+@inject SignInManager<FitnessSolutionUser> SignInManager
+@inject UserManager<FitnessSolutionUser> UserManager
 
 @{
     ViewData["Title"] = "Details";
@@ -16,17 +21,17 @@
             <div class="col-sm-6">
                 <div class="portfolio-s-head">
                     <h2 style="margin-bottom: 0px;">@Html.DisplayFor(model => model.DietTitle)</h2>
-                    @if (((ClaimsIdentity)User.Identity).FindFirst("Check").Value == "nutritionist")
+                    @if (User.IsInRole(Constants.ROLE_NUTRITIONIST))
                     {
-                        <a asp-action="Edit" asp-route-id="@Model.DietId">Edit</a>
+                        <a asp-action="Edit" asp-route-id="@Model.PartitionKey">Edit</a>
                         <a asp-action="Index">| Back to List</a>
                     }
-                <ul style="margin-top: 30px; margin-bottom: 0px;" class="portfolio-s-info">
-                    <li><span>Category:</span>@Html.DisplayFor(model => model.Type)</li>
-                </ul>
-                <p>
-                    @Html.DisplayFor(model => model.DietDescription)
-                </p>
+                    <ul style="margin-top: 30px; margin-bottom: 0px;" class="portfolio-s-info">
+                        <li><span>Category:</span>@Html.DisplayFor(model => model.Type)</li>
+                    </ul>
+                    <p>
+                        @Html.DisplayFor(model => model.DietDescription)
+                    </p>
                 </div>
 
             </div>
@@ -53,13 +58,13 @@
                                 <!-- .media -->
                                 <div class="media @((item.Type == "Breakfast") ? "breakfast" : "") @((item.Type == "Lunch") ? "lunch" : "") @((item.Type == "Dinner") ? "dinner" : "") @((item.Type == "Snacks") ? "snacks" : "")">
                                     <div class="media-left media-middle">
-                                        <a asp-controller="Recipes" asp-action="Details" asp-route-id="@item.RecipeId">
-                                            <img class="media-object" src="@("~/uploads/"+ item.RecipeImageName)" asp-append-version="true" alt="">
+                                        <a asp-controller="Recipes" asp-action="Details" asp-route-id="@item.RowKey">
+                                            <img class="media-object" src="@item.RecipeImageName" asp-append-version="true" alt="">
                                         </a>
                                     </div>
                                     <div class="media-body">
                                         <div class="media-body-inset">
-                                            <h3><a asp-controller="Recipes" asp-action="Details" asp-route-id="@item.RecipeId">@Html.DisplayFor(modelItem => item.RecipeTitle)</a></h3>
+                                            <h3><a asp-controller="Recipes" asp-action="Details" asp-route-id="@item.RowKey">@Html.DisplayFor(modelItem => item.RecipeTitle)</a></h3>
                                             <div class="recent-post-date">@Html.DisplayFor(modelItem => item.Type)</div>
                                         </div>
                                     </div>

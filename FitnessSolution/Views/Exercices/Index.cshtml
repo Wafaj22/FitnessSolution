@@ -1,5 +1,10 @@
 ﻿@model IEnumerable<FitnessSolution.Models.Exercice>
-@using System.Security.Claims
+@using Microsoft.AspNetCore.Identity
+@using FitnessSolution.Areas.Identity.Data
+@using FitnessSolution.Helpers
+
+@inject SignInManager<FitnessSolutionUser> SignInManager
+@inject UserManager<FitnessSolutionUser> UserManager
 
 @{
     ViewData["Title"] = "Index";
@@ -28,7 +33,7 @@
     <div class="col-md-9"></div>
     <div class="col-md-3">
         <div class="text-center p-t-35">
-            @if (((ClaimsIdentity)User.Identity).FindFirst("Check").Value == "trainer")
+            @if (User.IsInRole(Constants.ROLE_TRAINER) || User.IsInRole(Constants.ROLE_ADMIN))
             {
                 <a asp-action="Create" class="txt2" style="font-size: 17px;">
                     Create New
@@ -55,7 +60,7 @@
                         <img src="@item.ExerciceImageName" alt="">
                         <div class="portfolio-s-head">
                             <h2>@Html.DisplayFor(modelItem => item.ExerciceTitle)</h2>
-                            @if (((ClaimsIdentity)User.Identity).FindFirst("Check").Value == "trainer")
+                            @if (User.IsInRole(Constants.ROLE_TRAINER) || User.IsInRole(Constants.ROLE_ADMIN))
                             {
                                 <a asp-action="Edit" asp-route-id="@item.ExerciceId">Edit</a>
                                 <a asp-action="Delete" asp-route-id="@item.ExerciceId">| Delete</a>

@@ -1,4 +1,5 @@
 ﻿@page
+@using FitnessSolution.Helpers
 @model RegisterModel
 @{
     ViewData["Title"] = "Register";
@@ -30,9 +31,9 @@
             <i class="fa fa-check" aria-hidden="true"></i>
         </span>
         <select asp-for="Input.Role" class="input100">
-            <option value="member">Member</option>
-            <option value="trainer">Trainer</option>
-            <option value="nutritionist">Nutritionist</option>
+            <option value="@Constants.ROLE_MEMBER">@Constants.ROLE_MEMBER</option>
+            <option value="@Constants.ROLE_TRAINER">@Constants.ROLE_TRAINER</option>
+            <option value="@Constants.ROLE_NUTRITIONIST">@Constants.ROLE_NUTRITIONIST</option>
         </select>
     </div>
 

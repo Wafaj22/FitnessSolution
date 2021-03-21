@@ -15,7 +15,7 @@ namespace FitnessSolution.Models
         public string Type { get; set; }
 
         [Display(Name = "ID")]
-        public int Id { get; set; }
+        public string Id { get; set; }
 
         [Display(Name = "Type")]
         public string Specification { get; set; }
